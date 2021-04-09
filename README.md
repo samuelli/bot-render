@@ -214,7 +214,6 @@ root. Available configuration options:
 - `cache` _default `null`_ - set to `datastore` to enable caching on Google Cloud using datastore _only use if deploying to google cloud_, `memory` to enable in-memory caching or `filesystem` to enable disk based caching
 - `cacheConfig` - an object array to specify caching options
 - `renderOnly` - restrict the endpoint to only service requests for certain domains. Specified as an array of strings. eg. `['http://render.only.this.domain']`. This is a strict prefix match, so ensure you specify the exact protocols that will be used (eg. http, https).
-- `closeBrowser`_default `false`_ - `true` forces the browser to close and reopen between each page render, some sites might need this to prevent URLs past the first one rendered returning null responses.
 - `restrictedUrlPattern`_default `null`_ - set the restrictedUrlPattern to restrict the requests matching given regex pattern.
 
 #### cacheConfig
