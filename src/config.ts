@@ -26,7 +26,7 @@ import * as os from 'os';
 const CONFIG_PATH = path.resolve(__dirname, '../config.json');
 
 export type Config = {
-  cache: 'datastore' | 'memory' | 'filesystem' | null;
+  cache: 'datastore' | 'memory' | 'filesystem' | 'mongodb' | null;
   cacheConfig: { [key: string]: string };
   timeout: number;
   port: string;
@@ -48,6 +48,7 @@ export class ConfigManager {
       snapshotDir: path.join(os.tmpdir(), 'rendertron'),
       cacheDurationMinutes: (60 * 24).toString(),
       cacheMaxEntries: '100',
+      mongoURI: '',
     },
     timeout: 10000,
     port: '3000',

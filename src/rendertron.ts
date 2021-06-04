@@ -58,38 +58,32 @@ export class Rendertron {
       route.get('/_ah/health', (ctx: Koa.Context) => (ctx.body = 'OK'))
     );
 
+    let cacheModule;
     // Optionally enable cache for rendering requests.
     if (this.config.cache === 'datastore') {
       const { DatastoreCache } = await import('./datastore-cache');
-      const datastoreCache = new DatastoreCache();
-      this.app.use(
-        route.get('/invalidate/:url(.*)', datastoreCache.invalidateHandler())
-      );
-      this.app.use(
-        route.get('/invalidate/', datastoreCache.clearAllCacheHandler())
-      );
-      this.app.use(datastoreCache.middleware());
+      cacheModule = new DatastoreCache();
     } else if (this.config.cache === 'memory') {
       const { MemoryCache } = await import('./memory-cache');
-      const memoryCache = new MemoryCache();
-      this.app.use(
-        route.get('/invalidate/:url(.*)', memoryCache.invalidateHandler())
-      );
-      this.app.use(
-        route.get('/invalidate/', memoryCache.clearAllCacheHandler())
-      );
-      this.app.use(memoryCache.middleware());
+      cacheModule = new MemoryCache();
     } else if (this.config.cache === 'filesystem') {
       const { FilesystemCache } = await import('./filesystem-cache');
-      const filesystemCache = new FilesystemCache(this.config);
-      this.app.use(
-        route.get('/invalidate/:url(.*)', filesystemCache.invalidateHandler())
-      );
-      this.app.use(
-        route.get('/invalidate/', filesystemCache.clearAllCacheHandler())
-      );
-      this.app.use(new FilesystemCache(this.config).middleware());
+      cacheModule = new FilesystemCache(this.config);
+    } else if (this.config.cache === 'mongodb') {
+      const { MongoCache } = await import('./mongo-cache');
+      cacheModule = new MongoCache(this.config);
     }
+
+    if (cacheModule) {
+      this.app.use(
+        route.get('/invalidate/:url(.*)', cacheModule.invalidateHandler())
+      );
+      this.app.use(
+        route.get('/invalidate/', cacheModule.clearAllCacheHandler())
+      );
+      this.app.use(cacheModule.middleware());
+    }
+
 
     this.app.use(
       route.get('/render/:url(.*)', this.handleRenderRequest.bind(this))

@@ -3,3 +3,4 @@ node_modules/
 test.jpeg
 yarn.lock
 *.tgz
+config.json
