@@ -21,7 +21,7 @@
     "request": "^2.88.2"
   },
   "devDependencies": {
-    "@types/express": "^4.17.11",
+    "@types/express": "^4.17.13",
     "@types/request": "^2.48.5",
     "@types/supertest": "^2.0.11",
     "ava": "^3.15.0",
