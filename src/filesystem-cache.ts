@@ -87,7 +87,7 @@ export class FilesystemCache {
   }
 
   async clearAllCache() {
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       fs.readdir(this.getDir(''), (err, files) => {
         if (err) throw err;
         for (const file of files) {
@@ -184,6 +184,10 @@ export class FilesystemCache {
   sanitizeKey(key: string) {
     // Cache based on full URL. This means requests with different params are
     // cached separately (except for refreshCache parameter
+
+    // if key is empty return ''
+    if (!key) return '';
+
     let cacheKey = key.replace(/&?refreshCache=(?:true|false)&?/i, '');
 
     if (cacheKey.charAt(cacheKey.length - 1) === '?') {

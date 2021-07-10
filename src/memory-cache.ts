@@ -94,6 +94,10 @@ export class MemoryCache {
   sanitizeKey(key: string) {
     // Cache based on full URL. This means requests with different params are
     // cached separately (except for refreshCache parameter
+
+    // if key is empty return ''
+    if (!key) return '';
+
     let cacheKey = key.replace(/&?refreshCache=(?:true|false)&?/i, '');
 
     if (cacheKey.charAt(cacheKey.length - 1) === '?') {
