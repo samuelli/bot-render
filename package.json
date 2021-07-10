@@ -43,7 +43,7 @@
     "koa-send": "^5.0.1",
     "koa-static": "^5.0.0",
     "performance-now": "^2.1.0",
-    "puppeteer": "^10.0.0",
+    "puppeteer": "^10.1.0",
     "semver": "^7.3.4"
   },
   "devDependencies": {
