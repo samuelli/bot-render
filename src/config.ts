@@ -36,6 +36,7 @@ export type Config = {
   reqHeaders: { [key: string]: string };
   headers: { [key: string]: string };
   puppeteerArgs: Array<string>;
+  puppeteerHandleSIGTERM: boolean;
   renderOnly: Array<string>;
   closeBrowser: boolean;
   restrictedUrlPattern: string | null;
@@ -57,6 +58,7 @@ export class ConfigManager {
     reqHeaders: {},
     headers: {},
     puppeteerArgs: ['--no-sandbox'],
+    puppeteerHandleSIGTERM: true,
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null
