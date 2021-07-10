@@ -22,6 +22,10 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
+import Koa from 'koa';
+import bodyParser from 'koa-bodyparser';
+import koaCompress from 'koa-compress';
+import koaLogger from 'koa-logger';
 
 const CONFIG_PATH = path.resolve(__dirname, '../config.json');
 
@@ -39,6 +43,7 @@ export type Config = {
   renderOnly: Array<string>;
   closeBrowser: boolean;
   restrictedUrlPattern: string | null;
+  koaMiddlewares: Array<Koa.Middleware>;
 };
 
 export class ConfigManager {
@@ -59,7 +64,12 @@ export class ConfigManager {
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [],
     closeBrowser: false,
-    restrictedUrlPattern: null
+    restrictedUrlPattern: null,
+    koaMiddlewares: [
+      koaLogger(),
+      koaCompress(),
+      bodyParser(),
+    ],
   };
 
   static async getConfiguration(): Promise<Config> {

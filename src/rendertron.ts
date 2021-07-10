@@ -1,9 +1,6 @@
 import Koa from 'koa';
-import bodyParser from 'koa-bodyparser';
-import koaCompress from 'koa-compress';
 import route from 'koa-route';
 import koaSend from 'koa-send';
-import koaLogger from 'koa-logger';
 import path from 'path';
 import puppeteer from 'puppeteer';
 import url from 'url';
@@ -41,11 +38,9 @@ export class Rendertron {
 
     await this.createRenderer(this.config);
 
-    this.app.use(koaLogger());
-
-    this.app.use(koaCompress());
-
-    this.app.use(bodyParser());
+    this.config.koaMiddlewares.forEach((middleware) => {
+      this.app.use(middleware);
+    });
 
     this.app.use(
       route.get('/', async (ctx: Koa.Context) => {

@@ -254,6 +254,7 @@ test('whitelist ensures other urls do not get rendered', async (t: ExecutionCont
     renderOnly: [testBase],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    koaMiddlewares: [],
   };
   const server = request(await new Rendertron().initialize(mockConfig));
 
@@ -287,6 +288,7 @@ test('endpont for invalidating memory cache works if configured', async (t: Exec
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    koaMiddlewares: [],
   };
   const cached_server = request(await new Rendertron().initialize(mockConfig));
   const test_url = `${testBase}basic-script.html`;
@@ -333,6 +335,7 @@ test('endpont for invalidating filesystem cache works if configured', async (t: 
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    koaMiddlewares: [],
   };
   const cached_server = request(await new Rendertron().initialize(mock_config));
   const test_url = `/render/${testBase}basic-script.html`;
@@ -384,6 +387,7 @@ test('http header should be set via config', async (t: ExecutionContext) => {
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    koaMiddlewares: [],
   };
   server = request(await rendertron.initialize(mock_config));
   await app.listen(1237);
@@ -414,6 +418,7 @@ test.serial(
       renderOnly: [],
       closeBrowser: false,
       restrictedUrlPattern: null,
+      koaMiddlewares: [],
     };
     const cached_server = request(
       await new Rendertron().initialize(mock_config)
@@ -467,6 +472,7 @@ test.serial(
       renderOnly: [],
       closeBrowser: false,
       restrictedUrlPattern: null,
+      koaMiddlewares: [],
     };
     const cached_server = request(
       await new Rendertron().initialize(mock_config)
@@ -546,6 +552,7 @@ test('urls mathing pattern are restricted', async (t) => {
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: '.*(\\.test.html)($|\\?)',
+    koaMiddlewares: [],
   };
   const cached_server = request(
     await new Rendertron().initialize(mock_config)
