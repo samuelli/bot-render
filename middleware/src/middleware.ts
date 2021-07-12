@@ -15,7 +15,7 @@
  */
 
 import express from 'express';
-import request from 'request';
+import fetch from 'node-fetch';
 
 /**
  * A default set of user agent patterns for bots/crawlers that do not perform
@@ -184,13 +184,15 @@ export function makeMiddleware(options: Options): express.Handler {
     if (injectShadyDom) {
       renderUrl += '?wc-inject-shadydom=true';
     }
-    request({ url: renderUrl, timeout }, (e) => {
-      if (e) {
-        console.error(
-          `[rendertron middleware] ${e.code} error fetching ${renderUrl}`
-        );
-        next();
+    fetch(renderUrl, { timeout })
+      .then(function checkStatus(rendererResponse) {
+      if (!rendererResponse.ok) {
+        console.error(`[rendertron middleware] error fetching ${renderUrl}: ${rendererResponse.statusText}`);
       }
-    }).pipe(res);
+      return rendererResponse;
+      }).then(rendererResponse => {
+        res.status(rendererResponse.status);
+        rendererResponse.body.pipe(res)
+      });
   };
 }
