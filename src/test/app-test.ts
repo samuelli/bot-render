@@ -253,6 +253,7 @@ test('whitelist ensures other urls do not get rendered', async (t: ExecutionCont
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [testBase],
     closeBrowser: false,
+    clearCookies: false,
     restrictedUrlPattern: null,
   };
   const server = request(await new Rendertron().initialize(mockConfig));
@@ -286,6 +287,7 @@ test('endpont for invalidating memory cache works if configured', async (t: Exec
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [],
     closeBrowser: false,
+    clearCookies: false,
     restrictedUrlPattern: null,
   };
   const cached_server = request(await new Rendertron().initialize(mockConfig));
@@ -332,6 +334,7 @@ test('endpont for invalidating filesystem cache works if configured', async (t: 
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [],
     closeBrowser: false,
+    clearCookies: false,
     restrictedUrlPattern: null,
   };
   const cached_server = request(await new Rendertron().initialize(mock_config));
@@ -383,6 +386,7 @@ test('http header should be set via config', async (t: ExecutionContext) => {
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [],
     closeBrowser: false,
+    clearCookies: false,
     restrictedUrlPattern: null,
   };
   server = request(await rendertron.initialize(mock_config));
@@ -413,6 +417,7 @@ test.serial(
       puppeteerArgs: ['--no-sandbox'],
       renderOnly: [],
       closeBrowser: false,
+      clearCookies: false,
       restrictedUrlPattern: null,
     };
     const cached_server = request(
@@ -466,6 +471,7 @@ test.serial(
       puppeteerArgs: ['--no-sandbox'],
       renderOnly: [],
       closeBrowser: false,
+      clearCookies: false,
       restrictedUrlPattern: null,
     };
     const cached_server = request(
@@ -545,6 +551,7 @@ test('urls mathing pattern are restricted', async (t) => {
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [],
     closeBrowser: false,
+    clearCookies: false,
     restrictedUrlPattern: '.*(\\.test.html)($|\\?)',
   };
   const cached_server = request(
@@ -573,3 +580,33 @@ test('urls mathing pattern are restricted', async (t) => {
   fs.rmdirSync(path.join(os.tmpdir(), 'rendertron-test-cache'));
 });
 
+test('cookies clearing', async (t: ExecutionContext) => {
+  const mockConfig = {
+    cache: null,
+    cacheConfig: {
+      cacheDurationMinutes: '120',
+      cacheMaxEntries: '50',
+    },
+    timeout: 10000,
+    port: '3000',
+    host: '0.0.0.0',
+    width: 1000,
+    height: 1000,
+    reqHeaders: {},
+    headers: {},
+    puppeteerArgs: ['--no-sandbox'],
+    renderOnly: [testBase],
+    closeBrowser: false,
+    clearCookies: true,
+    restrictedUrlPattern: null,
+  };
+  const rendertron = new Rendertron();
+  const server = request(await rendertron.initialize(mockConfig));
+
+  let res = await server.get(`/render/${testBase}set-cookies.html`);
+  t.is(res.status, 200);
+  res = await server.get(`/render/${testBase}get-cookies.html`);
+  t.is(res.status, 200);
+
+  t.is(res.text.match(/cookieName=cookieValue/gi), null);
+});

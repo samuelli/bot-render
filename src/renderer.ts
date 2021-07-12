@@ -229,6 +229,11 @@ export class Renderer {
     // Serialize page.
     const result = (await page.content()) as string;
 
+    if (this.config.clearCookies) {
+      const client = await page.target().createCDPSession();
+      await client.send('Network.clearBrowserCookies');
+    }
+
     await page.close();
     if (this.config.closeBrowser) {
       await this.browser.close();
