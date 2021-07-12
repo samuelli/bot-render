@@ -1,6 +1,7 @@
 import puppeteer, { ScreenshotOptions } from 'puppeteer';
 import url from 'url';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
+import fs from 'fs';
 
 import { Config } from './config';
 
@@ -124,6 +125,10 @@ export class Renderer {
     page.evaluateOnNewDocument('customElements.forcePolyfill = true');
     page.evaluateOnNewDocument('ShadyDOM = {force: true}');
     page.evaluateOnNewDocument('ShadyCSS = {shimcssproperties: true}');
+    // add any custom evaluateOnNewDocument from config.json file
+    if (this.config.puppeteer && this.config.puppeteer.evaluateOnNewDocument) {
+      await page.evaluateOnNewDocument(this.config.puppeteer.evaluateOnNewDocument);
+    }
 
     await page.setRequestInterception(true);
 
@@ -215,6 +220,12 @@ export class Renderer {
         return JSON.stringify([...result]);
       })
       .catch(() => undefined);
+
+    //execute any beforeSerialize defined via config
+    if (this.config.puppeteer && this.config.puppeteer.beforeSerialize) {
+      const preloadFile = fs.readFileSync(resolve(__dirname, '../', this.config.puppeteer.beforeSerialize), 'utf8');
+      await page.evaluate(preloadFile);
+    }
 
     // Remove script & import tags.
     await page.evaluate(stripPage);

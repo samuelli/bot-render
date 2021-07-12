@@ -254,6 +254,7 @@ test('whitelist ensures other urls do not get rendered', async (t: ExecutionCont
     renderOnly: [testBase],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    puppeteer: {}
   };
   const server = request(await new Rendertron().initialize(mockConfig));
 
@@ -287,6 +288,7 @@ test('endpont for invalidating memory cache works if configured', async (t: Exec
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    puppeteer: {}
   };
   const cached_server = request(await new Rendertron().initialize(mockConfig));
   const test_url = `${testBase}basic-script.html`;
@@ -333,6 +335,7 @@ test('endpont for invalidating filesystem cache works if configured', async (t: 
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    puppeteer: {}
   };
   const cached_server = request(await new Rendertron().initialize(mock_config));
   const test_url = `/render/${testBase}basic-script.html`;
@@ -384,6 +387,7 @@ test('http header should be set via config', async (t: ExecutionContext) => {
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: null,
+    puppeteer: {}
   };
   server = request(await rendertron.initialize(mock_config));
   await app.listen(1237);
@@ -414,6 +418,7 @@ test.serial(
       renderOnly: [],
       closeBrowser: false,
       restrictedUrlPattern: null,
+      puppeteer: {}
     };
     const cached_server = request(
       await new Rendertron().initialize(mock_config)
@@ -467,6 +472,7 @@ test.serial(
       renderOnly: [],
       closeBrowser: false,
       restrictedUrlPattern: null,
+      puppeteer: {}
     };
     const cached_server = request(
       await new Rendertron().initialize(mock_config)
@@ -546,6 +552,7 @@ test('urls mathing pattern are restricted', async (t) => {
     renderOnly: [],
     closeBrowser: false,
     restrictedUrlPattern: '.*(\\.test.html)($|\\?)',
+    puppeteer: {}
   };
   const cached_server = request(
     await new Rendertron().initialize(mock_config)
@@ -573,3 +580,71 @@ test('urls mathing pattern are restricted', async (t) => {
   fs.rmdirSync(path.join(os.tmpdir(), 'rendertron-test-cache'));
 });
 
+test('puppeteer.evaluateOnNewDocument config works', async (t) => {
+  const mock_config = {
+    cache: 'memory' as const,
+    cacheConfig: {
+      cacheDurationMinutes: '120',
+      cacheMaxEntries: '50',
+    },
+    timeout: 10000,
+    port: '3000',
+    host: '0.0.0.0',
+    width: 1000,
+    height: 1000,
+    reqHeaders: {},
+    headers: {},
+    puppeteerArgs: ['--no-sandbox'],
+    renderOnly: [testBase],
+    closeBrowser: false,
+    restrictedUrlPattern: null,
+    puppeteer: {
+      evaluateOnNewDocument: "window.globalTitle='from evaluateOnNewDocument';",
+    }
+  };
+  const server = request(
+    await new Rendertron().initialize(mock_config)
+  );
+  await app.listen(1241);
+  // Make custom-evaluate request
+  const res = await server.get(`/render/${testBase}custom-evaluate.html`);
+  t.is(res.status, 200);
+  t.is(res.header['x-renderer'], 'rendertron');
+  //Make sure the puppetter evaluateOnNewDocument got called and did it what it was supposed to do
+  t.true(res.text.indexOf('from evaluateOnNewDocument') !== -1);
+});
+
+test('puppeteer.beforeSerialize config works', async (t) => {
+  const mock_config = {
+    cache: 'memory' as const,
+    cacheConfig: {
+      cacheDurationMinutes: '120',
+      cacheMaxEntries: '50',
+    },
+    timeout: 10000,
+    port: '3000',
+    host: '0.0.0.0',
+    width: 1000,
+    height: 1000,
+    reqHeaders: {},
+    headers: {},
+    puppeteerArgs: ['--no-sandbox'],
+    renderOnly: [testBase],
+    closeBrowser: false,
+    restrictedUrlPattern: null,
+    puppeteer: {
+      beforeSerialize: './test-resources/cssom-to-styles.js'
+    }
+  };
+  const server = request(
+    await new Rendertron().initialize(mock_config)
+  );
+  await app.listen(1242);
+  // Make a cssom request
+  const res = await server.get(`/render/${testBase}cssom.html`);
+  t.is(res.status, 200);
+  t.is(res.header['x-renderer'], 'rendertron');
+  //Make sure the puppetter.beforeSerialize got called and did it what it was supposed to do
+  t.true(res.text.indexOf('styles-for-prerender') !== -1);
+  t.true(res.text.indexOf('body.grey') !== -1);
+});

@@ -216,6 +216,7 @@ root. Available configuration options:
 - `renderOnly` - restrict the endpoint to only service requests for certain domains. Specified as an array of strings. eg. `['http://render.only.this.domain']`. This is a strict prefix match, so ensure you specify the exact protocols that will be used (eg. http, https).
 - `closeBrowser`_default `false`_ - `true` forces the browser to close and reopen between each page render, some sites might need this to prevent URLs past the first one rendered returning null responses.
 - `restrictedUrlPattern`_default `null`_ - set the restrictedUrlPattern to restrict the requests matching given regex pattern.
+- `puppeteer` _default `{}`_ - an object to specify custom scripts to be executed during puppeteer page life cycle.
 
 #### cacheConfig
 
@@ -234,6 +235,21 @@ An example config file specifying a memory cache, with a 2 hour expiration, and 
         "cacheDurationMinutes": 120,
         "cacheMaxEntries": 50
     }
+}
+```
+
+#### puppeteer config ####
+Note, this currently only supports:
+  - `evaluateOnNewDocument` - inline script/function that is invoked after the document was created but before any of its scripts were run. You can use this as a hook to initialize/bootstrap any custom logic/state needed by the page. See [puppeteer.evaluateOnNewDocument](https://pptr.dev/#?product=Puppeteer&version=v8.0.0&show=api-pageevaluateonnewdocumentpagefunction-args)
+  - `beforeSerialize` - path to a custom JS script that will be executed before the page is serialized by rendertron. The path is relative to rendertron root folder or can be absolute path.
+
+##### Example
+Some CSS in JS frameworks (e.g styled-components), use insertRule to add styles to the page. These styles are not present in the DOM and don't make it into the cached HTML. Leading to issues like [styled-components#2577](https://github.com/styled-components/styled-components/issues/2577). You can use `evaluateOnNewDocument` to setup [global options](https://github.com/styled-components/styled-components/issues/2577#issuecomment-497815931) for these frameworks OR use `beforeSerialize` to inject [custom script](./test-resources/cssom-to-styles.js) to convert in-memory CSSOM to inline styles.
+
+```javascript
+"puppeteer": {
+    "evaluateOnNewDocument": "SC_DISABLE_SPEEDY = true;",
+    "beforeSerialize": "./cssom-to-styles.js"
 }
 ```
 
