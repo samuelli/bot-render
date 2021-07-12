@@ -13,6 +13,10 @@ root. Available configuration options:
 - `renderOnly` - restrict the endpoint to only service requests for certain domains. Specified as an array of strings. eg. `['http://render.only.this.domain']`. This is a strict prefix match, so ensure you specify the exact protocols that will be used (eg. http, https).
 - `closeBrowser`_default `false`_ - `true` forces the browser to close and reopen between each page render, some sites might need this to prevent URLs past the first one rendered returning null responses.
 
+### allow-list Config 
+
+Rendertron is not supposed to be run with untrusted web data.Rendertron should be configured with an allow-list and behind a reverse proxy, rather than exposed to the open internet.
+
 ## cacheConfig
 
 - `cacheDurationMinutes` _default `1440`_ - set an expiry time in minues, defaults to 24 hours. Set to -1 to disable cache Expiration
