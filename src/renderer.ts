@@ -263,6 +263,7 @@ export class Renderer {
       page.setUserAgent(MOBILE_USERAGENT);
     }
 
+    await page.setExtraHTTPHeaders(this.config.reqHeaders);
     await page.setRequestInterception(true);
 
     page.addListener('request', (interceptedRequest: puppeteer.HTTPRequest) => {
