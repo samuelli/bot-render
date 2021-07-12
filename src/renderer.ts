@@ -54,13 +54,15 @@ export class Renderer {
      * Executed on the page after the page has loaded. Strips script and
      * import tags to prevent further loading of resources.
      */
-    function stripPage() {
-      // Strip only script tags that contain JavaScript (either no type attribute or one that contains "javascript")
-      const elements = document.querySelectorAll(
-        'script:not([type]), script[type*="javascript"], script[type="module"], link[rel=import]'
-      );
-      for (const e of Array.from(elements)) {
-        e.remove();
+    function stripPage(stripSelectors: string) {
+      if (stripSelectors) {
+        // Strip only script tags that contain JavaScript (either no type attribute or one that contains "javascript")
+        const elements = document.querySelectorAll(
+            stripSelectors
+        );
+        for (const e of Array.from(elements)) {
+          e.remove();
+        }
       }
     }
 
@@ -96,12 +98,12 @@ export class Renderer {
     // Page may reload when setting isMobile
     // https://github.com/GoogleChrome/puppeteer/blob/v1.10.0/docs/api.md#pagesetviewportviewport
     await page.setViewport({
-      width: this.config.width,
-      height: this.config.height,
+      width: isMobile ? this.config.widthMobile : this.config.width,
+      height: isMobile ? this.config.heightMobile : this.config.height,
       isMobile,
     });
 
-    if (isMobile) {
+    if (isMobile && this.config.setUserAgentMobile) {
       page.setUserAgent(MOBILE_USERAGENT);
     }
 
@@ -217,7 +219,7 @@ export class Renderer {
       .catch(() => undefined);
 
     // Remove script & import tags.
-    await page.evaluate(stripPage);
+    await page.evaluate(stripPage, this.config.stripSelectors);
     // Inject <base> tag with the origin of the request (ie. no path).
     const parsedUrl = url.parse(requestUrl);
     await page.evaluate(
@@ -259,7 +261,7 @@ export class Renderer {
       isMobile,
     });
 
-    if (isMobile) {
+    if (isMobile && this.config.setUserAgentMobile) {
       page.setUserAgent(MOBILE_USERAGENT);
     }
 

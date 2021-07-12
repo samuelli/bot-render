@@ -32,13 +32,17 @@ export type Config = {
   port: string;
   host: string;
   width: number;
+  widthMobile: number;
   height: number;
+  heightMobile: number;
+  setUserAgentMobile: boolean;
   reqHeaders: { [key: string]: string };
   headers: { [key: string]: string };
   puppeteerArgs: Array<string>;
   renderOnly: Array<string>;
   closeBrowser: boolean;
   restrictedUrlPattern: string | null;
+  stripSelectors: string;
 };
 
 export class ConfigManager {
@@ -52,14 +56,18 @@ export class ConfigManager {
     timeout: 10000,
     port: '3000',
     host: '0.0.0.0',
-    width: 1000,
-    height: 1000,
+    width: 1280,
+    widthMobile: 768,
+    height: 1280,
+    heightMobile: 768,
+    setUserAgentMobile: true,
     reqHeaders: {},
     headers: {},
     puppeteerArgs: ['--no-sandbox'],
     renderOnly: [],
     closeBrowser: false,
-    restrictedUrlPattern: null
+    restrictedUrlPattern: null,
+    stripSelectors: 'script:not([type]), script[type*="javascript"], script[type="module"], link[rel=import]'
   };
 
   static async getConfiguration(): Promise<Config> {

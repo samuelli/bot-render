@@ -16,6 +16,7 @@
 
 import express from 'express';
 import request from 'request';
+import expressUseragent from 'express-useragent';
 
 /**
  * A default set of user agent patterns for bots/crawlers that do not perform
@@ -183,6 +184,9 @@ export function makeMiddleware(options: Options): express.Handler {
     let renderUrl = proxyUrl + encodeURIComponent(incomingUrl);
     if (injectShadyDom) {
       renderUrl += '?wc-inject-shadydom=true';
+    }
+    if (expressUseragent.parse(ua).isMobile) {
+      renderUrl += injectShadyDom ? '&mobile' : '?mobile';
     }
     request({ url: renderUrl, timeout }, (e) => {
       if (e) {
